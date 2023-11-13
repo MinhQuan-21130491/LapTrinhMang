@@ -1,29 +1,26 @@
 package io;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 
 public class CopyFile {
-	public static void readFile(String source) throws IOException {
-		InputStream iTS = new FileInputStream(new File(source));
-		byte[] array = new byte[1024 * 1000];
-
-		iTS.read(array);
-		String str = new String(array);
-		System.out.println(str);
-
-	}
 
 	public static boolean fileCopyOrMove(String source, String des, boolean move) throws IOException {
 		File fileSource = new File(source);
-		InputStream inT = new FileInputStream(fileSource);
-		OutputStream outT = new FileOutputStream(new File(des));
+		InputStream inT = new BufferedInputStream(new FileInputStream(fileSource));
+		OutputStream outT =  new BufferedOutputStream(new FileOutputStream(new File(des)));
 		byte[] array = new byte[1024 * 1000];
 		int data;
 		try {
@@ -90,9 +87,12 @@ public class CopyFile {
 	}
 
 	public static void main(String[] args) throws IOException {
-		// System.out.println(fileCopyOrMove("D:\\ltm\\text.txt",
-		// "D:\\ltm\\text-copy.txt", false));
-		 System.out.println(folderCopyOrMove("D:\\ltm\\text", "D:\\ltm\\text-copy",false));
-
+//		write();
+//		read();
+		//readFile("D:\\ltm\\text.txt");
+		//readFileChar("D:\\ltm\\text.txt");
+		System.out.println(fileCopyOrMove("D:\\ltm\\text.txt", "D:\\ltm\\text-copy.txt", false));
+		// System.out.println(folderCopyOrMove("D:\\ltm\\text", "D:\\ltm\\text-copy",false));
+     
 	}
 }
