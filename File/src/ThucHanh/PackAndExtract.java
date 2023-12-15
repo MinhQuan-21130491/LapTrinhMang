@@ -28,7 +28,6 @@ public class PackAndExtract {
 	
 	public static void pack(String source, String des) throws IOException {
 	     List<File> files = getListFile(source);
-	     File fileSource = new File(source);
 	     File fileDes = new File(des);
 	     RandomAccessFile raf = new RandomAccessFile(fileDes, "rw");
 	     //header

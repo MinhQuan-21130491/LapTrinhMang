@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author DATA
- *
- */
-module File {
-}
