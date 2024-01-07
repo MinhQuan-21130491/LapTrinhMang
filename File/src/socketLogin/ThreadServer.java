@@ -29,13 +29,16 @@ public class ThreadServer extends Thread {
 
 	@Override
 	public void run() {
+
+		String com, param, response;
+		String line;
 		try {
 			pr.println("Login now!");
 			String userName = "";
 			boolean isLogin = false;
 			String res = "";
 			while(!isLogin) {	
-				String line = bf.readLine();
+				 line = bf.readLine();
 				if(line.equalsIgnoreCase("quit")) {
 					break;
 				}
@@ -46,7 +49,7 @@ public class ThreadServer extends Thread {
 				switch(command) {
 				case "USER": 
 					try {
-						if(!dao.checkExistsUserName(param)) {
+						if(!dao.checkExitsUserName(param)) {
 							res ="UserName not exist!";
 						}else {
 							userName = param;
@@ -62,7 +65,7 @@ public class ThreadServer extends Thread {
 						res = "UserName first!";
 					}else {
 						try {
-							if(dao.isLogin(userName, param)) {
+							if(dao.checkLogin(userName, param)) {
 								res ="Login success!";
 								isLogin = true;
 							}else {
@@ -80,34 +83,31 @@ public class ThreadServer extends Thread {
 				}
 				pr.println(res);
 			}
-				while (isLogin) {
-	                StringTokenizer tokenizer = new StringTokenizer(bf.readLine());
-	                String command = tokenizer.nextToken().toUpperCase();
-	                if(command.equalsIgnoreCase("quit")) break;
-	                String param = tokenizer.nextToken();
-	                switch (command) {
-	                    case "FNAME":
-						try {
-							printList(pr, dao.findByName(param));
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-	                        break;
-	                    case "FID":
-						try {
-							printList(pr, dao.findById(Integer.parseInt(param)));
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-	                    default:
-	                        res = "ERROR";
-	                        break;
-	                }
+			String rs ;
+			while (isLogin) {
+				line = bf.readLine();
+				if (line==null ||"QUIT".equalsIgnoreCase(line)) break;
+				StringTokenizer st = new StringTokenizer(line);
+				com = st.nextToken().toUpperCase();
+				param = st.nextToken();
+				switch(com) {
+				case "FINDBYID":
+					rs =  dao.fid(Integer.parseInt(param));
+					if (rs==null) response = "Khong tim thay";
+					else response = rs;
+
+					break;
+				case "FINDBYNAME":
+					param = line.substring(com.length()).trim();
+					rs = dao.fname(param);
+					if (rs==null) response = "Khong tim thay";
+					else response = rs;
+					break;
+				default:
+					response = "Lenh khong hop le";
+					break;
+			}
+			netOut.println(response);
 	            }		
 			socket.close();
 			JDBCUtil.closeConnection(dao.connection);

@@ -14,91 +14,72 @@ import java.util.List;
 
 
 public class PackAndExtract {
-	public static List<File> getListFile(String source) {
-		List<File> re = new ArrayList<>();
-		File file = new File(source);
-		File[] files = file.listFiles();
-		for (File f : files) {
-			if(f.isFile()) {
-				re.add(f);
-			}
-		}
-		return re;
+	static private List<File> getRegularFiles(String folder){
+		List<File> regFiles = new ArrayList<File>();
+		File dir = new File(folder);
+		File[] list = dir.listFiles();
+		for(File f:list) if (f.isFile()) regFiles.add(f);
+		return regFiles;
 	}
-	
-	public static void pack(String source, String des) throws IOException {
-	     List<File> files = getListFile(source);
-	     File fileDes = new File(des);
-	     RandomAccessFile raf = new RandomAccessFile(fileDes, "rw");
-	     //header
-	     int index = 0;
-	     long[] hasPos = new long[files.size()];
-	     raf.writeInt(files.size());
-			for (File file : files) {
-				hasPos[index++] = raf.getFilePointer();
-				raf.writeLong(raf.getFilePointer());
-				raf.writeLong(file.length());
-				raf.writeUTF(file.getName());
-			}
-	     index = 0;
-	     long temp = 0;
-	     for (File file : files) {
-	    	temp =raf.getFilePointer();
-	    	raf.seek(hasPos[index++]);
-			raf.writeLong(temp);
-			raf.seek(temp);
-		    InputStream is = new BufferedInputStream(new FileInputStream(file));
-		    byte[] data = new byte[102400];
-		    int rb;
-		    while((rb = is.read(data)) != -1) raf.write(data, 0, rb);
-		    is.close();
+	static public void pack(String folder, String packedFile) throws IOException {
+		List<File> regFiles = getRegularFiles(folder);
+		RandomAccessFile raf = new RandomAccessFile(packedFile, "rw");
+		
+		long[] FEPos = new long[regFiles.size()];
+		raf.writeInt(regFiles.size()); //ghi số lượng file
+		int index = 0;
+		long pos = 0;
+		long hPos;
+		for(File file:regFiles) {
+			FEPos[index++] = raf.getFilePointer();
+			raf.writeLong(pos);	
+			raf.writeLong(file.length());
+			raf.writeUTF(file.getName());
 		}
-	     raf.close();
-}
-	public static void unPack(String packFile, String extractFile, String desFile ) throws IOException {
-		RandomAccessFile raf = new RandomAccessFile(packFile, "r");
-		long pos, length;
-		String name;
-		int fileNumber = raf.readInt();
-		for (int i = 0; i <fileNumber; i++) {
-			pos = raf.readLong();
-			length = raf.readLong();
-			name = raf.readUTF();
-			if(name.equalsIgnoreCase(extractFile)) {
-				raf.seek(pos);
-				OutputStream os = new BufferedOutputStream(new FileOutputStream(desFile));
-				transferTo(raf, os, length);
-				os.close();
-				break;
-		}
+		index = 0;
+		for(File file:regFiles) {
+			pos = raf.getFilePointer();
+			raf.seek(FEPos[index++]);
+			raf.writeLong(pos);
+			raf.seek(pos);
+			
+			
+			byte[] buff = new byte[102400];
+			int byteread;
+			FileInputStream fis = new FileInputStream(file);
+			while((byteread = fis.read(buff))!=-1) raf.write(buff,0, byteread);
+			fis.close();
 		}
 		raf.close();
-		
-		
-		
 	}
-	private static boolean transferTo(RandomAccessFile is, OutputStream os,long pSize) throws IOException {
-	byte[] arrByte= new byte[1000*1024];
-	int byteRead ;
-	int byteReq;
-	long remain = pSize;
-	while(remain > 0) {
-		byteReq = (int) ((remain > arrByte.length)?arrByte.length:remain);
-		byteRead = is.read(arrByte, 0, byteReq);
-		if(byteRead == -1) {os.close() ;return false;}
-		os.write(arrByte, 0, byteRead);
-		remain -= byteRead;
+	static public void unPack(String packedFile, String extractFile, String dest) throws IOException {
+		RandomAccessFile raf = new RandomAccessFile(packedFile, "r");
+		long pos, size;
+		String name;
+		int fileNo = raf.readInt();
+		for(int i=0; i<fileNo; i++) {
+			pos = raf.readLong();
+			size = raf.readLong();
+			name = raf.readUTF();
+			if (name.equalsIgnoreCase(extractFile)) {
+				FileOutputStream fos = new FileOutputStream(dest);
+				raf.seek(pos);
+				for(long k=0; k<size; k++) {
+					fos.write(raf.read());
+				}
+				fos.close();
+				break;
+			}
+		}
+		raf.close();
 	}
-	os.close();
-	return true;
-}
 	public static void main(String[] args) throws IOException {
 		String source = "D:\\ltm\\folder";
 		String extract ="New Text Document.txt";
 		String des = "D:\\ltm\\folder\\text-copy.txt";
 		String pack = "D:\\ltm\\pack\\pack.txt";
-	// pack(source, pack);
-		unPack(pack, extract, des);
+	pack(source, pack);
+		//unPack(pack, extract, des);
 	
 	}
 }

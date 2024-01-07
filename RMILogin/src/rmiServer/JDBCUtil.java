@@ -1,4 +1,4 @@
-package socketLogin;
+package rmiServer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,7 +15,7 @@ public class JDBCUtil {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-            String url = "jdbc:ucanaccess://C:\\Users\\DATA\\OneDrive\\Documents\\Database2.accdb";
+            String url = "jdbc:ucanaccess://F:\\Student.mdb";
              c = DriverManager.getConnection(url);
 
         } catch (SQLException e) {

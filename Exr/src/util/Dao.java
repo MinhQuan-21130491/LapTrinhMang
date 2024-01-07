@@ -1,19 +1,21 @@
-package socketLogin;
+package util;
 
 import java.sql.Connection;
-
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Dao {
-	Connection connection;
-
-	public Dao() {
-		connection = JDBCUtil.getConnection();
+	Connection connection = null;
+	public Dao() throws ClassNotFoundException, SQLException {
+		Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+		String url = "jdbc:ucanaccess://C:\\Users\\DATA\\OneDrive\\Documents\\Database2.accdb";
+		connection = DriverManager.getConnection(url);
+	}
+	public void close() throws SQLException {
+		connection.close();
 	}
 	public boolean checkExitsUserName(String userName) throws SQLException {
 		boolean flag = false;
@@ -64,8 +66,8 @@ public class Dao {
 		}
 		return re;
 	}
-	public static void main(String[] args) throws SQLException {
-		Dao dao = new Dao();
-		//System.out.println(dao.findByName("quan"));
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		System.out.println(new Dao().fname("quan"));
 	}
+
 }
